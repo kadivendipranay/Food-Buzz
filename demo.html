@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Food Buzz</title>
+</head>
+<body>
+    <div class="container">
+        <div class="left-side">
+            <i class="fa-solid fa-utensils" id="food-icon"></i>
+            <span id="food">Food Buzz</span>
+        </div>
+        <div class="search-data">
+            <input type="text" name="searchitem" placeholder="Search for over 100,000 recipes" id="searchinput"/>
+            <button id="search">Search</button>
+        </div>
+        <div class="add-recipe">
+            <button>Add Recipe</button>
+        </div>
+        <div class="bookmarks">
+            <button>Bookmarks</button>
+        </div>
+    </div>
+
+    <div class="two-container">
+        <div class="left-container" id="left-container"></div>
+        <div class="right-container" id="right-container">
+            <i class="fa-regular fa-face-laugh" id="laugh"></i>
+            <span id="text"> Start by searching for a recipe or an ingredient. Have fun!</span>
+        </div>
+    </div>
+
+    <div id="paging-controls" class="paging-controls">
+        <span id="page-number"></span>
+    </div>
+
+    <script type="module" src="./Controller.js"></script>
+
+</body>
+</html>
