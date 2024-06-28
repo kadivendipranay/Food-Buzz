@@ -1,70 +1,93 @@
-// Controller.js
+import { anotherRecipeObject, storeRecipeData, getMyData } from './MVC/MyModel.js';
+import OneRecipeView from './MVC/OneRecipeView.js';
+import * as SearchView from './MVC/SearchView.js';
 
-import { storeRecipeData, anotherRecipeObject } from "./MVC/MyModel.js";
-import { OneRecipeView } from "./MVC/OneRecipeView.js";
-
-// Get references to the DOM elements
-const searchBtn = document.getElementById('search');
 const searchInput = document.getElementById('searchinput');
+const searchButton = document.getElementById('search');
 const leftContainer = document.getElementById('left-container');
 const rightContainer = document.getElementById('right-container');
+const pagingControls = document.getElementById('paging-controls');
+const prevPageButton = document.getElementById('prev-page');
+const nextPageButton = document.getElementById('next-page');
+const lastPageButton = document.getElementById('last-page'); // Reference to Last Page Button
+const pageNumberSpan = document.getElementById('page-number');
 
-// Event listener for the search button
-searchBtn.addEventListener('click', () => {
-  getRecipeData();
+let currentPage = 1;
+const recipesPerPage = 10;
+let totalRecipes = 0;
+let currentSearchQuery = '';
+
+async function searchRecipes(query, page = 1) {
+  const recipes = await getMyData(query);
+  totalRecipes = recipes.length;
+  currentSearchQuery = query;
+
+  if (totalRecipes === 0) {
+    // Handle the case where no recipes are found
+    leftContainer.innerHTML = "<p>No recipes found. Please try another search.</p>";
+    rightContainer.innerHTML = "";
+    pagingControls.style.display = 'none';
+    return;
+  }
+
+  const totalPages = Math.ceil(totalRecipes / recipesPerPage);
+  if (page > totalPages) {
+    page = totalPages;
+    currentPage = totalPages;
+  }
+
+  const start = (page - 1) * recipesPerPage;
+  const end = page * recipesPerPage;
+  const paginatedRecipes = recipes.slice(start, end);
+
+  SearchView.clearResults(leftContainer);
+  SearchView.displayRecipes(paginatedRecipes, leftContainer);
+  updatePagingControls();
+}
+
+function updatePagingControls() {
+  if (totalRecipes === 0) {
+    pagingControls.style.display = 'none';
+  } else {
+    pagingControls.style.display = 'flex';
+    pageNumberSpan.textContent = `Page ${currentPage}`;
+    prevPageButton.disabled = currentPage === 1;
+    nextPageButton.disabled = currentPage === Math.ceil(totalRecipes / recipesPerPage);
+    lastPageButton.disabled = currentPage === Math.ceil(totalRecipes / recipesPerPage); // Disable Last Page button if already on last page
+  }
+}
+
+searchButton.addEventListener('click', function () {
+  currentPage = 1;
+  const query = searchInput.value.trim();
+  if (query) searchRecipes(query);
 });
 
-// Function to fetch recipes based on the search input
-async function getRecipeData() {
-  try {
-    const searchItem = searchInput.value;
-    const response = await fetch(`https://forkify-api.herokuapp.com/api/v2/recipes?search=${searchItem}&key=c171930d-efd7-4d85-99ec-f13700d14538`);
-    if (!response.ok) throw new Error(`Failed to fetch recipes: ${response.status}`);
-    const recipeData = await response.json();
-    const recipeArray = recipeData.data.recipes;
+SearchView.addClickEvent(leftContainer, async function (id) {
+  await storeRecipeData(id);
+  OneRecipeView.render(anotherRecipeObject, rightContainer);
+});
 
-    // Clear the left container before displaying new results
-    leftContainer.innerHTML = "";
-
-    // Display the search results in the left container
-    recipeArray.forEach(recipe => {
-      const { publisher, title, image_url: imageUrl, id } = recipe;
-
-      leftContainer.insertAdjacentHTML("afterbegin", `
-        <a href="#${id}">
-          <div class="left-food-container">
-            <img src="${imageUrl}" id="myimage"/>
-            <h2 id="mypublisher">${publisher}</h2>
-            <h3 id="mytitle">${title}</h3>
-          </div>
-        </a>
-      `);
-    });
-  } catch (e) {
-    alert(e.message);
+prevPageButton.addEventListener('click', function () {
+  if (currentPage > 1) {
+    currentPage--;
+    searchRecipes(currentSearchQuery, currentPage);
   }
-}
+});
 
-// Function to load a specific recipe based on the hash ID
-async function loadParticularRecipe() {
-  try {
-    // Get the hash ID from the URL
-    const hashID = window.location.hash.slice(1);
-    if (!hashID) return;
-
-    // Fetch the recipe data and store it
-    await storeRecipeData(hashID);
-
-    // Render the recipe view
-    const rv = new OneRecipeView();
-    rv.render();
-  } catch (e) {
-    alert(e.message);
+nextPageButton.addEventListener('click', function () {
+  if (currentPage < Math.ceil(totalRecipes / recipesPerPage)) {
+    currentPage++;
+    searchRecipes(currentSearchQuery, currentPage);
   }
-}
+});
 
-// Load a recipe when the hash in the URL changes
-window.addEventListener("hashchange", loadParticularRecipe);
+// New event listener for Last Page button
+lastPageButton.addEventListener('click', function () {
+  currentPage = Math.ceil(totalRecipes / recipesPerPage);
+  searchRecipes(currentSearchQuery, currentPage);
+});
 
-// Initial load in case there's a hash ID present in the URL
-loadParticularRecipe();
+document.addEventListener('DOMContentLoaded', function () {
+  searchRecipes('pasta');
+});

@@ -1,3 +1,4 @@
+//MVC\RecipeView.js
 export class RecipeView {
   constructor() {
     this.recipeContainer = null;

@@ -1,47 +1,36 @@
-// OneRecipeView.js
-import { anotherRecipeObject } from "./MyModel.js";
+class OneRecipeView {
+  render(anotherRecipeObject, rightContainer) {
+    rightContainer.innerHTML = "";
+    const recipe = anotherRecipeObject.recipeObject[0];
+    const ingredientsMarkup = recipe.ingredients.map(ingredient => `
+      <li>${ingredient.quantity ? ingredient.quantity : ''} ${ingredient.unit} ${ingredient.description}</li>
+    `).join('');
 
-export class OneRecipeView {
-  constructor() {
-    this.rightContainer = document.getElementById("right-container");
-  }
-
-  render() {
-    this.clear();
-    const collectedData = anotherRecipeObject.recipeObject;
-    this.rightData = this.actualLogic(collectedData);
-    this.addDataToContainer();
-  }
-
-  clear() {
-    this.rightContainer.innerHTML = "";
-  }
-
-  actualLogic(receivedData) {
-    return `
-      <div class="right-food-container">
-        <img class="right-image" src="${receivedData.imageUrl}" />
-        <h3 class="right-title">Title: ${receivedData.title}</h3>
-        <h2 class="right-publisher">Publisher: ${receivedData.publisher}</h2>
-        <h3 class="right-servings">Servings: ${receivedData.servings}</h3>
-        <h3 class="right-cooking_time">Cooking Time: ${receivedData.cooking_time}</h3>
-        <h3 class="right-readyInMinutes">Ready In Minutes: ${receivedData.readyInMinutes}</h3>
-        <h3 id="cooking_instructions">${receivedData.cooking_instructions}</h3>
-        <a href="${receivedData.source_url}" target="_blank">View Recipe</a>
-        <div class="ingredients">
-          ${receivedData.ingredients.map(i => `
-            <div>
-              <span>${i.description}</span> --
-              <span>${i.quantity}</span>
-              <span>${i.unit}</span>
-            </div>
-          `).join("")}
-        </div>
+    const markup = `
+      <figure>
+        <img src="${recipe.imageUrl}" alt="${recipe.title}" class="right-image">
+        <h1 class="right-title">${recipe.title}</h1>
+      </figure>
+      <div>
+        <h2>Cooking Time</h2>
+        <p class="right-cooking-time">${recipe.cookingTime} minutes</p>
+      </div>
+      <div>
+        <h2>Servings</h2>
+        <p class="right-servings">${recipe.servings} servings</p>
+      </div>
+      <div>
+        <h2>Publisher</h2>
+        <p class="right-publisher">${recipe.publisher}</p>
+      </div>
+      <div>
+        <h2>Ingredients</h2>
+        <ul>${ingredientsMarkup}</ul>
       </div>
     `;
-  }
 
-  addDataToContainer() {
-    this.rightContainer.insertAdjacentHTML("afterbegin", this.rightData);
+    rightContainer.insertAdjacentHTML("afterbegin", markup);
   }
 }
+
+export default new OneRecipeView();

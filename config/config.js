@@ -1,5 +1,4 @@
-// config/config.js
-
+//config\config.js
 export const API_URL = 'https://forkify-api.herokuapp.com/api';
 
 export async function getJSON(url) {
