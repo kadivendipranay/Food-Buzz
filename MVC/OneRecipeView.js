@@ -40,7 +40,9 @@ class OneRecipeView {
       ${readyInMarkup}
       <div>
         <h2>Servings</h2>
-        <p class="right-servings">${recipe.servings} servings</p>
+        <button id="decrease-servings" class="servings-btn">-</button>
+        <span id="servings-count" class="right-servings">${recipe.servings}</span>
+        <button id="increase-servings" class="servings-btn">+</button>
       </div>
       <div>
         <h2>Publisher</h2>
@@ -52,12 +54,28 @@ class OneRecipeView {
       </div>
       <a href="${recipe.sourceUrl}" target="_blank">View Recipe</a>
     `;
-    
+
     this.rightContainer.insertAdjacentHTML("afterbegin", markup);
+    this.addEventListeners();
   }
 
   clear() {
     this.rightContainer.innerHTML = "";
+  }
+
+  addEventListeners() {
+    const decreaseBtn = document.getElementById("decrease-servings");
+    const increaseBtn = document.getElementById("increase-servings");
+    const servingsCount = document.getElementById("servings-count");
+
+    decreaseBtn.addEventListener("click", () => this.updateServings(servingsCount, -1));
+    increaseBtn.addEventListener("click", () => this.updateServings(servingsCount, 1));
+  }
+
+  updateServings(servingsCountElement, change) {
+    let currentServings = parseInt(servingsCountElement.textContent, 10);
+    currentServings = Math.max(1, currentServings + change); // Ensure servings do not go below 1
+    servingsCountElement.textContent = currentServings;
   }
 }
 
